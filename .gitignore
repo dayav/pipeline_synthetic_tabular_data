@@ -1,0 +1,9 @@
+*.pyc
+*.bkp
+
+# Hugging Face Hub local artifacts (must never be versioned)
+experiments/pipeline_tabular_data_results/
+
+# Hugging Face caches / locks
+**/.huggingface/
+**/*.lock
