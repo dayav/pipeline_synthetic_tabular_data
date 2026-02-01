@@ -1,23 +1,28 @@
-from random import uniform
-import sys
+from contextlib import suppress
+from enum import Enum
+import gc
+from math import sqrt
 import pickle
+import sys
+
+import faiss
+import gower
+from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
-from math import sqrt
-from contextlib import suppress
-
-from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
+from scipy.sparse import csr_matrix
+from scipy.spatial import distance
+from scipy.stats import loguniform, truncnorm
+from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyClassifier, DummyRegressor
+from sklearn.ensemble import (
+    HistGradientBoostingClassifier,
+    HistGradientBoostingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.model_selection import KFold, RandomizedSearchCV, StratifiedKFold, cross_val_score
-from ..base_evaluator import BaseEvaluator
-from data_loader import DataLoader
-from .mia_stdg import evaluate_membership_attack
-from scipy.spatial import distance
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
     accuracy_score,
     balanced_accuracy_score,
@@ -28,19 +33,12 @@ from sklearn.metrics import (
     recall_score,
 )
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import MinMaxScaler
-from scipy.sparse import csr_matrix
-from joblib import Parallel, delayed
-from scipy.stats import truncnorm
-from scipy.stats import loguniform, randint, uniform
-from sklearn.dummy import DummyRegressor, DummyClassifier
-import faiss
+from sklearn.model_selection import KFold, RandomizedSearchCV, StratifiedKFold, cross_val_score
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
-import gower
-import gc
-
-from statistics import mean
-from enum import Enum
+from ..base_evaluator import BaseEvaluator
 
 class SimilarityType(Enum):
     EUCLIDEAN = 0 
@@ -113,40 +111,6 @@ class PrivacyEvaluator(BaseEvaluator) :
         last_ix = len(data.columns) - 1
         return data.drop(['Label'], axis=1), data[['Label']]
 
-    def closest_distance_to_record_stdg(self, proportions, thresholds) :
-        real_concat = pd.concat([self._real, self._real_test])
-        train_data_indexes = self._real['ID'].tolist()
-
-        precision_values = dict()
-        accuracy_values = dict()
-        
-        for threshold in thresholds :
-            precision_values[threshold] = []
-            accuracy_values[threshold] = []
-            for proportion in proportions :
-                attacker_data = real_concat.sample(frac = proportion)
-
-                precision, accuracy = evaluate_membership_attack(attacker_data, train_data_indexes, self._synth, threshold)
-                precision_values[threshold].append(precision)
-                accuracy_values[threshold].append(accuracy)
-        return precision_values, accuracy_values
-    
-    # def _prepare_data(self, qid_columns):
-    #     """Sample and deduplicate data for the attacker."""
-
-    #     self._qid_columns = qid_columns
-
-    #     real_data = self._real.drop_duplicates(subset=self._qid_columns, keep='first')
-    #     synth_data = self._synth.drop_duplicates(subset=self._qid_columns, keep='first')
-    #     test_data = self._real_test.drop_duplicates(subset=self._qid_columns, keep='first')
-
-    #     self._data_synthetic_qid = synth_data[self._qid_columns] 
-    #     self._data_synthetic_risk = synth_data[self._non_quid_columns]
-    #     self._data_real_qid = real_data[self._qid_columns]
-    #     self._data_real_risk = real_data[self._non_quid_columns]
-
-    #     self._attacker_qid_data = test_data[self._qid_columns]
-    #     self._attacker_non_qid_data = test_data[self._non_quid_columns]
 
     def _prepare_data(self, qid_columns):
         """Sample and deduplicate data for the attacker (according to policy)."""

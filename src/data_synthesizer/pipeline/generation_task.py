@@ -1,14 +1,26 @@
-from typing import Optional
-import pandas as pd
 import copy
+from typing import Optional
 
-from data_loader.data_loader import DataLoader
+import pandas as pd
+
 from data_evaluator.univariate_evaluator import UnivariateEvaluator
-from data_synthesizer.pipeline.base_pipeline import Task, TaskType
+from data_loader.data_loader import DataLoader
+from data_synthesizer.pipeline.base_pipeline import Task
 from data_synthesizer.pipeline.pipeline_results import GenerationResults, PipelineResults
-from data_synthesizer.privacy_sampling import get_epsilon, get_epsilon_heom_any, get_epsilon_heom_any_faiss, get_epsilon_heom_any_hnsw, get_epsilon_heom_any_weighted_k, get_epsilon_heom_hnsw, get_epsilon_tabnet, sampling_reject_epsilon, get_epsilon_numerical_only, sampling_reject_epsilon_heom_any_weighted_k, sampling_reject_epsilon_heom_faiss_any, sampling_reject_epsilon_heom_hnsw_any, sampling_reject_epsilon_heom_knn_any, sampling_reject_epsilon_hnsw, sampling_reject_epsilon_numerical_only, sampling_reject_epsilon_tabnet
-from data_synthesizer.sampling_reject_fit_gard import sampling_reject_aig_only_qr, sampling_reject_aig_with_teacher_and_quota
-from privacy_sampling.embeddings import make_tabnet_embedder
+from data_synthesizer.privacy_sampling import (
+    get_epsilon,
+    get_epsilon_heom_any,
+    get_epsilon_heom_any_weighted_k,
+    get_epsilon_heom_hnsw,
+    get_epsilon_numerical_only,
+    sampling_reject_epsilon,
+    sampling_reject_epsilon_heom_any_weighted_k,
+    sampling_reject_epsilon_heom_faiss_any,
+    sampling_reject_epsilon_heom_hnsw_any,
+    sampling_reject_epsilon_heom_knn_any,
+    sampling_reject_epsilon_hnsw,
+    sampling_reject_epsilon_numerical_only,
+)
 
 class GenerationTask(Task):
     """Task for generating synthetic data."""
@@ -169,100 +181,81 @@ class SamplingAndRejectTask(GenerationTask):
 
         print('mode_collapse_corrected in SamplingAndRejectTask : ',results['generation_results']['mode_collapse_corrected'])
         
-        if self._aia_parameters != None :
-            self.synth_data = sampling_reject_aig_with_teacher_and_quota(
-                self.model, 
-                self.train_data, 
-                **self._aia_parameters)
-        
+
+        if self._dissimilarity_type == "only_numerical" :
+            self._epsilon_identifiability = get_epsilon_numerical_only(self.train_data, self.synth_data,
+                                                        self.num_features)
+
+        elif self._dissimilarity_type == "heom" :
+                self._epsilon_identifiability = get_epsilon_heom_hnsw(
+                    self.train_data, self.synth_data, self.num_features, self.cat_features)
+        elif self._dissimilarity_type == "heom-knn-any" :
+                self._epsilon_identifiability = get_epsilon_heom_any(
+                    self.train_data, self.synth_data, self.num_features, self.cat_features)
+
+        elif self._dissimilarity_type == "heom-knn-any-weighted-2" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                        self.train_data, self.synth_data, self.num_features, self.cat_features, k=2)
+        elif self._dissimilarity_type == "heom-knn-any-weighted-5" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                        self.train_data, self.synth_data, self.num_features, self.cat_features, k=5)
+        elif self._dissimilarity_type == "heom-knn-any-weighted-10" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                        self.train_data, self.synth_data, self.num_features, self.cat_features, k=10)
+        elif self._dissimilarity_type == "heom-knn-any-5" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                        self.train_data, self.synth_data, self.num_features, self.cat_features, k=5, compute_inverse_entropy=False)
+        elif self._dissimilarity_type == "heom-knn-any-10" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                        self.train_data, self.synth_data, self.num_features, self.cat_features, k= 10, compute_inverse_entropy=False)
+        elif self._dissimilarity_type == "heom-faiss-any" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                    self.train_data, self.synth_data, self.num_features, self.cat_features)
+        elif self._dissimilarity_type == "heom-hnsw-any" :
+                self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
+                    self.train_data, self.synth_data, self.num_features, self.cat_features)
         else :
-
+            self._epsilon_identifiability = get_epsilon(self.train_data, self.synth_data,
+                                                        self.cat_features, self.num_features)
+        # only for test
+        
+        print('initial epsilon : ', self._epsilon_identifiability)
+        if self._epsilon_identifiability > self.epsilon:
             if self._dissimilarity_type == "only_numerical" :
-                self._epsilon_identifiability = get_epsilon_numerical_only(self.train_data, self.synth_data,
-                                                            self.num_features)
-            elif self._dissimilarity_type == "tabnet" :
-                embed_fn = make_tabnet_embedder(self.train_data,
-                                    self.num_features,
-                                    self.cat_features)       
-
-                self._epsilon_identifiability = get_epsilon_tabnet(
-                        self.train_data, self.synth_data, embed_fn)
-                
+                self.synth_data = sampling_reject_epsilon_numerical_only(self.model, self.train_data, self.epsilon,
+                                                    self.num_features, len(self.train_data))
             elif self._dissimilarity_type == "heom" :
-                    self._epsilon_identifiability = get_epsilon_heom_hnsw(
-                        self.train_data, self.synth_data, self.num_features, self.cat_features)
+                self.synth_data = sampling_reject_epsilon_hnsw(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data))
             elif self._dissimilarity_type == "heom-knn-any" :
-                    self._epsilon_identifiability = get_epsilon_heom_any(
-                        self.train_data, self.synth_data, self.num_features, self.cat_features)
-
+                self.synth_data = sampling_reject_epsilon_heom_knn_any(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data))
             elif self._dissimilarity_type == "heom-knn-any-weighted-2" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                            self.train_data, self.synth_data, self.num_features, self.cat_features, k=2)
+                self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data), k=2)
             elif self._dissimilarity_type == "heom-knn-any-weighted-5" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                            self.train_data, self.synth_data, self.num_features, self.cat_features, k=5)
+                self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data), k=5)
             elif self._dissimilarity_type == "heom-knn-any-weighted-10" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                            self.train_data, self.synth_data, self.num_features, self.cat_features, k=10)
+                self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data), k=10)
             elif self._dissimilarity_type == "heom-knn-any-5" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                            self.train_data, self.synth_data, self.num_features, self.cat_features, k=5, compute_inverse_entropy=False)
+                self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data), k=5, compute_inverse_entropy=False)
             elif self._dissimilarity_type == "heom-knn-any-10" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                            self.train_data, self.synth_data, self.num_features, self.cat_features, k= 10, compute_inverse_entropy=False)
-            elif self._dissimilarity_type == "heom-faiss-any" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                        self.train_data, self.synth_data, self.num_features, self.cat_features)
-            elif self._dissimilarity_type == "heom-hnsw-any" :
-                    self._epsilon_identifiability = get_epsilon_heom_any_weighted_k(
-                        self.train_data, self.synth_data, self.num_features, self.cat_features)
-            else :
-                self._epsilon_identifiability = get_epsilon(self.train_data, self.synth_data,
-                                                            self.cat_features, self.num_features)
-            # only for test
+                self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data), k=10, compute_inverse_entropy=False)                
             
-            print('initial epsilon : ', self._epsilon_identifiability)
-            if self._epsilon_identifiability > self.epsilon:
-                if self._dissimilarity_type == "only_numerical" :
-                    self.synth_data = sampling_reject_epsilon_numerical_only(self.model, self.train_data, self.epsilon,
-                                                        self.num_features, len(self.train_data))
-                elif self._dissimilarity_type == "heom" :
-                    self.synth_data = sampling_reject_epsilon_hnsw(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data))
-                elif self._dissimilarity_type == "heom-knn-any" :
-                    self.synth_data = sampling_reject_epsilon_heom_knn_any(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data))
-                elif self._dissimilarity_type == "heom-knn-any-weighted-2" :
-                    self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data), k=2)
-                elif self._dissimilarity_type == "heom-knn-any-weighted-5" :
-                    self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data), k=5)
-                elif self._dissimilarity_type == "heom-knn-any-weighted-10" :
-                    self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data), k=10)
-                elif self._dissimilarity_type == "heom-knn-any-5" :
-                    self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data), k=5, compute_inverse_entropy=False)
-                elif self._dissimilarity_type == "heom-knn-any-10" :
-                    self.synth_data = sampling_reject_epsilon_heom_any_weighted_k(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data), k=10, compute_inverse_entropy=False)                
+            elif self._dissimilarity_type == "heom-faiss-any" :
+                self.synth_data = sampling_reject_epsilon_heom_hnsw_any(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data))
+            elif self._dissimilarity_type == "heom-hnsw-any" :
+                self.synth_data = sampling_reject_epsilon_heom_faiss_any(self.model, self.train_data, self.epsilon,
+                    self.num_features, self.cat_features, len(self.train_data))
                 
-                elif self._dissimilarity_type == "heom-faiss-any" :
-                    self.synth_data = sampling_reject_epsilon_heom_hnsw_any(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data))
-                elif self._dissimilarity_type == "heom-hnsw-any" :
-                    self.synth_data = sampling_reject_epsilon_heom_faiss_any(self.model, self.train_data, self.epsilon,
-                        self.num_features, self.cat_features, len(self.train_data))
-                    
-                elif self._dissimilarity_type == "tabnet" :
-                    
-                    self.synth_data = sampling_reject_epsilon_tabnet(self.model, self.train_data, self.epsilon,
-                        embed_fn=embed_fn, n_samples=len(self.train_data), random_state = 42, num_cols = self.num_features, cat_cols = self.cat_features, sens_cols = self._sensitives_cols)
-                
-                else :
-                    self.synth_data = sampling_reject_epsilon(self.model, self.train_data, self.epsilon,
-                                                        self.cat_features, self.num_features, len(self.train_data))
+            else :
+                self.synth_data = sampling_reject_epsilon(self.model, self.train_data, self.epsilon,
+                                                    self.cat_features, self.num_features, len(self.train_data))
         #  only for test               
         
         self.generation_results = GenerationResults(synthetic_data =  self.synth_data, generator_model = self.model, mode_collapse_corrected = self.mode_collapse_corrected)

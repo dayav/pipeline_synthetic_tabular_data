@@ -12,7 +12,7 @@ from data_evaluator import (
 from data_evaluator.privacy_evaluation.privacy_evaluator import PrivacyEvaluator, SimilarityType
 from data_evaluator.privacy_evaluation.privacy_evaluator_anonymeter import PrivacyEvaluatorAnonymeter
 from data_loader.data_loader import DataLoader
-from data_synthesizer.pipeline.base_pipeline import Task, TaskType
+from data_synthesizer.pipeline.base_pipeline import Task
 from data_synthesizer.pipeline.pipeline_results import PipelineResults, PrivacyAnonymeterEvaluationResults, PrivacyEvaluationResults, ResemblanceEvaluationResults, UtilityEvaluationResults, GenerationResults
 from data_synthesizer.privacy_sampling import get_epsilon_any
   

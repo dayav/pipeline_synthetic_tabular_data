@@ -1,12 +1,19 @@
 from typing import List
+
 import numpy as np
 import pandas as pd
-from scipy.stats import ttest_ind, mannwhitneyu, chi2_contingency, wilcoxon
-from scipy.stats import kstest, ks_2samp 
 from scipy.special import rel_entr
 from scipy.spatial.distance import jensenshannon
-from scipy.stats import gaussian_kde
-from tqdm import tqdm
+from scipy.stats import (
+    chi2_contingency,
+    gaussian_kde,
+    ks_2samp,
+    kstest,
+    mannwhitneyu,
+    ttest_ind,
+    wilcoxon,
+)
+
 from .base_evaluator import BaseEvaluator
 
 class UnivariateEvaluator(BaseEvaluator) :

@@ -1,11 +1,11 @@
 from itertools import combinations
 from typing import Tuple
 
+from dython.nominal import associations
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 from scipy.stats.contingency import association
-from dython.nominal import correlation_ratio, associations
 
 from .base_evaluator import BaseEvaluator
 

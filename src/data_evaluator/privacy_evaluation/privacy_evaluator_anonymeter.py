@@ -1,15 +1,8 @@
-import os
-import random
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
+from typing import NamedTuple, Optional
 
+from anonymeter.evaluators import LinkabilityEvaluator, SinglingOutEvaluator
 from pandas import DataFrame
-from typing import Optional, NamedTuple
-from anonymeter.evaluators import SinglingOutEvaluator
-from anonymeter.evaluators import LinkabilityEvaluator
-from anonymeter.stats.confidence import EvaluationResults
+
 from ..base_evaluator import BaseEvaluator
 
 class AnonymeterResults(NamedTuple):
