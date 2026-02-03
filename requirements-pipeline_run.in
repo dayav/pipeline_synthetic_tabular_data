@@ -1,0 +1,4 @@
+.[pipeline_run]
+shap==0.48.0
+xgboost==2.1.4
+scikit-learn==1.7.2

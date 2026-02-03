@@ -1,18 +1,2 @@
-anonymeter
-dython
-gower
-ipykernel
-ipywidgets
-joblib
-pandas
-rbo
-scikit-learn
-sdv
-shap
-xgboost
-smartnoise-synth
-h5py
-# dill-0.3.8
-# h5py-3.11.0
-# syntheval-1.4.1
--e .
+# Legacy convenience file. Prefer requirements.in (+ pip install -e .).
+-r requirements.in

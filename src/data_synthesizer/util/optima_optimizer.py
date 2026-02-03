@@ -1,6 +1,6 @@
 import os
 import optuna
-from data_synthesizer.sdv import SDVCTGAN, SDVTVAE
+from data_synthesizer.sdv import SDVCTGAN_
 from data_evaluator.global_evaluator import GlobalEvaluator
 from data_loader import DataLoader
 from sdv.metadata import SingleTableMetadata
@@ -21,7 +21,7 @@ def objective_sdvgan(trial, data_real_path, cat_list, drop_identation=False) :
     generator_lr = trial.suggest_float("gen_lr", 1e-5, 1e-3)
     discr_lr = trial.suggest_float("discr_lr", 1e-5, 1e-3)
 
-    model = SDVCTGAN(metadata=metadata, generator_lr=generator_lr, discriminator_lr=discr_lr,verbose=True, epochs=500)
+    model = SDVCTGAN_(metadata, df, generator_lr=generator_lr, discriminator_lr=discr_lr, verbose=True, epochs=500)
     model.fit(df)
     loss = model._training_report['Generator Loss'][-20:]
     mean_loss = sum(loss) / 20

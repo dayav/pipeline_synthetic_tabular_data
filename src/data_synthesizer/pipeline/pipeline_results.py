@@ -1,10 +1,20 @@
 from dataclasses import dataclass, fields
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
-from data_evaluator.privacy_evaluation.privacy_evaluator_anonymeter import AnonymeterResults
+try:
+    from data_evaluator.privacy_evaluation.privacy_evaluator_anonymeter import (
+        AnonymeterResults,
+    )
+except Exception:
+    if TYPE_CHECKING:
+        from data_evaluator.privacy_evaluation.privacy_evaluator_anonymeter import (
+            AnonymeterResults,
+        )
+    else:
+        AnonymeterResults = Any
 
 class _DictLikeDataclass:
     """

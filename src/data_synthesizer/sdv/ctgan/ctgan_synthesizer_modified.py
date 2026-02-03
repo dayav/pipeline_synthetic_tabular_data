@@ -79,6 +79,8 @@ class SDVCTGAN_(CTGANSynthesizer) :
         print('_fit from child')
         transformers = self._data_processor._hyper_transformer.field_transformers
         discrete_columns = detect_discrete_columns(self.get_metadata(), processed_data, transformers)
+        print('processed_data columns:', list(processed_data.columns))
+        print('discrete_columns:', list(discrete_columns))
         
         self._model.fit(processed_data, discrete_columns=discrete_columns)
         print('got it')
@@ -112,7 +114,6 @@ class SDVCTGAN_(CTGANSynthesizer) :
                 for param in child.parameters():
                     print(param.requires_grad)
                     param.requires_grad = False
-
 
 
 

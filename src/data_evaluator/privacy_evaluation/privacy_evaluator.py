@@ -435,7 +435,8 @@ class PrivacyEvaluator(BaseEvaluator) :
         numeric_cols = read_data.select_dtypes(exclude='category').columns
 
         col_length = len(self._real.columns)
-        df_length = len(self._real)
+        # Ensure we never index past the available synthetic rows.
+        df_length = min(len(read_data), len(synth_data))
 
         min_diss_gen_idx = []
         min_diss_gen = []
@@ -443,7 +444,7 @@ class PrivacyEvaluator(BaseEvaluator) :
         comp_results_df = []
         last_i = 0
         first_index = 0
-        last_length = 5000
+        last_length = min(5000, df_length)
 
         while first_index != df_length :
 

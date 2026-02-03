@@ -463,9 +463,14 @@ class UtilityEvaluation(BaseEvaluator):
                            categorical_idx: list[int],
                            numerical_idx: list[int]) -> shap.Explanation:
         """Compute SHAP on the fitted pipeline; collapse OHE back to original features."""
+        def _build_explainer(est, data):
+            if isinstance(est, XGBClassifier):
+                return shap.TreeExplainer(est, data)
+            return shap.Explainer(est, data)
+
         if 'prep' not in fitted_pipeline.named_steps:
             est = fitted_pipeline.named_steps['m']
-            explainer = shap.Explainer(est, X_raw)
+            explainer = _build_explainer(est, X_raw)
             return explainer(X_raw)
 
         prep = fitted_pipeline.named_steps['prep']
@@ -483,7 +488,7 @@ class UtilityEvaluation(BaseEvaluator):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            explainer = shap.Explainer(est, X_t)
+            explainer = _build_explainer(est, X_t)
             exp = explainer(X_t)
 
         vals = exp.values

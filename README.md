@@ -52,6 +52,41 @@ Notes:
   If you keep the submodule at the repo root (default), create a symlink to avoid editing scripts:
   `ln -s ../pipeline_tabular_data_results experiments/pipeline_tabular_data_results`
 
+## Installation
+Minimal (core only, no heavy ML extras):
+```
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.in
+python -m pip install -e .
+```
+
+Optional extras:
+```
+python -m pip install -e ".[pipeline_run]"  # heavy ML + training/evaluation
+python -m pip install -e ".[notebooks]"  # Jupyter + plotting/reporting
+python -m pip install -e ".[dev]"        # tests/lint/format/type-check
+python -m pip install -e ".[experimental]"  # prototypes not covered in the paper
+```
+
+Pinned install for pipeline_run (Python 3.11 lockfile):
+Note: Python 3.11 is required; Python 3.12 is not supported by some pinned deps (e.g., anonymeter).
+```
+python -m pip install -r requirements-pipeline_run.txt
+python -m pip install -e .
+```
+
+Smoke test (no LFS downloads required):
+```
+./scripts/smoke_test.sh
+```
+
+Pipeline smoke test (requires pipeline_run deps):
+```
+./scripts/smoke_test_pipeline_run.sh
+```
+
 ## Results & Large Artifacts (Hugging Face Submodule)
 All heavy experiment outputs live in the `pipeline_tabular_data_results/` submodule, pinned to a specific commit
 for reproducibility. The submodule is hosted at the Hugging Face dataset repo:
@@ -118,6 +153,14 @@ You can combine multiple folders/patterns:
 ```
 git -C pipeline_tabular_data_results lfs pull --include "data/**,baseline/**,epsilon_comparison_heom_any/adult_ctgan_eps_0.1/**"
 ```
+
+**Concrete examples (entry point → required results folders):**
+- `experiments/differential_privacy_generation/dp_ctgan.ipynb` → `data/**`
+  - `git -C pipeline_tabular_data_results lfs pull --include "data/**"`
+- `experiments/pipeline_experiment/baseline_comparison.ipynb` → `data/**,baseline/**,epsilon_utility_comparison_heom_any/**,extra/**`
+  - `git -C pipeline_tabular_data_results lfs pull --include "data/**,baseline/**,epsilon_utility_comparison_heom_any/**,extra/**"`
+- `experiments/scripts/adult/ctgan_eps_heom_any_0.3/driver.py` → `data/**,baseline/**,epsilon_comparison_heom_any/**,mode_collapse_correction/**`
+  - `git -C pipeline_tabular_data_results lfs pull --include "data/**,baseline/**,epsilon_comparison_heom_any/**,mode_collapse_correction/**"`
 
 ## Task -> Required Data Mapping (AUTO-GENERATED)
 The table below is derived from static path references in each script/notebook. It lists the results subfolders

@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PipelineTabularDataSynth"
+version = "0.1"
+description = "Synthetic tabular data pipeline and evaluation utilities."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "h5py",
+]
+
+[project.optional-dependencies]
+notebooks = [
+    "ipykernel",
+    "ipywidgets",
+    "IPython",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+]
+pipeline_run = [
+    "tqdm",
+    "dython",
+    "gower",
+    "faiss-cpu",
+    "hnswlib",
+    "anonymeter",
+    "sdv==1.24.0",
+    "ctgan",
+    "torch",
+    "xgboost==2.1.4",
+    "shap==0.48.0",
+    "scikit-learn==1.7.2",
+    "rbo",
+    "optuna",
+    "sdmetrics",
+]
+experimental = [
+    "pytorch-tabnet",
+    "diffprivlib",
+    "smartnoise-synth",
+]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+    "mypy",
+    "pip-tools",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
