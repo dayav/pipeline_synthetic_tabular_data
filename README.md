@@ -33,6 +33,10 @@ This repository contains the experimental pipeline and evaluation artifacts for 
 
 ## Documentation
 - [Setup & Reproducibility](docs/SETUP.md)
+- [Reproduce the Paper](docs/REPRODUCE_PAPER.md)
+- [Metrics Reference](docs/METRICS.md)
+- [Datasets](docs/DATASETS.md)
+- [Results & Git LFS](docs/RESULTS.md)
 - [Results Storage Format](RESULTS_STORAGE.md)
 - [GitHub Repository](https://github.com/dayav/pipeline_synthetic_tabular_data)
 - [Hugging Face Results Dataset](https://huggingface.co/datasets/dayav/pipeline_tabular_data_results)
@@ -56,7 +60,7 @@ Lightweight vs. heavy content:
 
 ## Quick Start
 > **Note**
-> This quick start avoids large Git LFS downloads. For full setup, LFS workflows, and troubleshooting, see `docs/SETUP.md`.
+> This quick start avoids large Git LFS downloads. For full setup, reproduction steps, and troubleshooting, see `docs/SETUP.md` and `docs/REPRODUCE_PAPER.md`.
 
 ```bash
 GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules git@github.com:dayav/pipeline_synthetic_tabular_data.git
@@ -74,7 +78,9 @@ python -m pip install -e .
 All heavy experiment outputs live in the `pipeline_tabular_data_results/` Git submodule (Git LFS), pinned to a specific commit for reproducibility and hosted on Hugging Face. By default you will only have pointer files until you selectively pull the artifacts you need. See `docs/SETUP.md` for the full LFS workflow and the auto-generated task-to-results mapping.
 
 ## License & Citation
-No `LICENSE` file was found in this repository. Until a license is added, reuse rights are unspecified.
+No explicit license has been selected yet. See `LICENSE` for the current status.
+
+For citations, use `CITATION.cff` (includes the paper citation, repository citation guidance, and results-submodule reference).
 
 Citation guidance (research use):
 - Cite the code repository by name (`PipelineTabularDataSynth`) and include the exact code commit SHA.

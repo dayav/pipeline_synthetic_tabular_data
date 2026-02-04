@@ -18,16 +18,9 @@ save_all_results(results, "results/credit_ctgan_baseline")
 restored = load_all_results("results/credit_ctgan_baseline")
 ```
 
-You can choose a storage backend for the synthetic data payload:
-
-```python
-from data_synthesizer.pipeline.storages.storage_backends import list_backends
-
-print(list_backends())  # ("hdf5", "parquet", "csv")
-
-save_all_results(results, "results/run_parquet", generation_backend="parquet")
-restored = load_all_results("results/run_parquet")
-```
+> **Note**
+> The current implementation writes generation payloads as HDF5 only. Alternate
+> storage backends are not implemented yet.
 
 ## Folder layout
 
@@ -35,22 +28,23 @@ restored = load_all_results("results/run_parquet")
 
 ```
 results/my_run/
-├── my_run_generation.<ext>
+├── my_run_generation.h5
 ├── my_run_generation_mode_collapse_corrected.h5
 ├── my_run_generation_model.pkl
 ├── my_run_evaluation.h5
-└── my_run_manifest.json
 ```
 
-- `my_run_generation.<ext>` stores the synthetic data table using the selected
-  storage backend (`.h5` for HDF5, `.parquet` for Parquet, `.csv` for CSV).
+- `my_run_generation.<ext>` stores the synthetic data table using HDF5 (`.h5`).
 - `my_run_generation_mode_collapse_corrected.h5` stores the boolean flag for
   mode collapse correction.
 - `my_run_generation_model.pkl` is optional and only written if a generator model
   is included in `generation_results`.
 - `my_run_evaluation.h5` stores evaluation results (utility, privacy, resemblance,
   anonymeter) when present.
-- `my_run_manifest.json` records which files and backend were used.
+  
+> **TODO**
+> If you need alternative backends (Parquet/CSV), add them in
+> `data_synthesizer/pipeline/storages/evaluation_results_storage.py`.
 
 ## Security note
 

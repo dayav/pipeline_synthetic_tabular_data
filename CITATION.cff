@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: PipelineTabularDataSynth
+message: >-
+  If you use this software in research, please cite the related paper, the
+  repository (with the exact code commit SHA), and the results submodule
+  (with the exact results commit SHA).
+type: software
+authors:
+  - family-names: Yavo
+    given-names: David
+  - family-names: Khoury
+    given-names: Richard
+  - family-names: Pere
+    given-names: Christophe
+  - family-names: "Ait Kaci Azzou"
+    given-names: Sadoune
+repository-code: https://github.com/dayav/pipeline_synthetic_tabular_data
+repository-artifact: https://huggingface.co/datasets/dayav/pipeline_tabular_data_results
+preferred-citation:
+  type: manuscript
+  title: Generating High-quality Privacy-preserving Synthetic Data
+  authors:
+    - family-names: Yavo
+      given-names: David
+    - family-names: Khoury
+      given-names: Richard
+    - family-names: Pere
+      given-names: Christophe
+    - family-names: "Ait Kaci Azzou"
+      given-names: Sadoune
+  notes: Preprint or submitted manuscript. Use the version provided with the review materials.
