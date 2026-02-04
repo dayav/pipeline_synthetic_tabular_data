@@ -26,6 +26,7 @@ pipeline_run = [
     "anonymeter",
     "tables",
     "tabulate",
+    "synthcity",
     "ipykernel",
     "ipywidgets",
     "IPython",
