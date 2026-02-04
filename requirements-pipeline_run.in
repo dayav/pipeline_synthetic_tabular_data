@@ -1,5 +1,7 @@
 .[pipeline_run]
 tables
+tabulate
+torch==2.5.1
 shap==0.48.0
 xgboost==2.1.4
 scikit-learn==1.7.2
