@@ -17,14 +17,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-notebooks = [
-    "ipykernel",
-    "ipywidgets",
-    "IPython",
-    "matplotlib",
-    "seaborn",
-    "plotly",
-]
 pipeline_run = [
     "tqdm",
     "dython",
@@ -32,6 +24,13 @@ pipeline_run = [
     "faiss-cpu",
     "hnswlib",
     "anonymeter",
+    "tables",
+    "ipykernel",
+    "ipywidgets",
+    "IPython",
+    "matplotlib",
+    "seaborn",
+    "plotly",
     "sdv==1.24.0",
     "ctgan",
     "torch",

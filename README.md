@@ -64,8 +64,7 @@ python -m pip install -e .
 
 Optional extras:
 ```
-python -m pip install -e ".[pipeline_run]"  # heavy ML + training/evaluation
-python -m pip install -e ".[notebooks]"  # Jupyter + plotting/reporting
+python -m pip install -e ".[pipeline_run]"  # heavy ML + training/evaluation + Jupyter/plotting
 python -m pip install -e ".[dev]"        # tests/lint/format/type-check
 python -m pip install -e ".[experimental]"  # prototypes not covered in the paper
 ```

@@ -5,7 +5,7 @@ from pathlib import Path
 EXPERIMENTS_DIR: Path = Path(__file__).resolve().parent
 PROJECT_ROOT: Path = EXPERIMENTS_DIR.parent
 
-RESULTS_DIR: Path = EXPERIMENTS_DIR / "pipeline_tabular_data_results"
+RESULTS_DIR: Path = PROJECT_ROOT / "pipeline_tabular_data_results"
 DATA_DIR: Path = RESULTS_DIR / "data"
 BASELINE_DIR: Path = RESULTS_DIR / "baseline"
 GENERATOR_OPTIMIZATION_DIR: Path = RESULTS_DIR / "generator_optimization"
