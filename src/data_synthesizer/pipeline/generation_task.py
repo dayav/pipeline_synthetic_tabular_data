@@ -21,6 +21,7 @@ from data_synthesizer.privacy_sampling import (
     sampling_reject_epsilon_hnsw,
     sampling_reject_epsilon_numerical_only,
 )
+from data_synthesizer.sampling_aia_guard import sampling_reject_attribute_inference
 
 class GenerationTask(Task):
     """Task for generating synthetic data."""
@@ -163,7 +164,83 @@ class SamplingAndRejectTask(GenerationTask):
         self._dissimilarity_type = dissimilarity_type
         self._sensitives_cols = sensitives_cols
         self._aia_parameters = aia_parameters
-        
+    
+    def _run_aia_rejection_sampling(self) -> pd.DataFrame:
+        if not self._aia_parameters:
+            raise ValueError(
+                "AIA sampling requires `aia_parameters` with at least `sensitive_col` "
+                "and (optionally) `real_val_df`."
+            )
+
+        params = dict(self._aia_parameters)
+        sensitive_col = params.get("sensitive_col")
+        if sensitive_col is None:
+            sens_cols = params.get("sens_cols", [])
+            if len(sens_cols) == 1:
+                sensitive_col = sens_cols[0]
+            elif len(sens_cols) > 1:
+                raise ValueError(
+                    "AIA sampling supports one sensitive attribute at a time. "
+                    "Use `sensitive_col` for a single column."
+                )
+
+        if sensitive_col is None:
+            raise ValueError("Missing `sensitive_col` in `aia_parameters`.")
+
+        z_cols = params.get("Z_cols", params.get("z_cols"))
+        if z_cols is not None:
+            z_cols = list(z_cols)
+            if len(z_cols) == 0:
+                z_cols = None
+
+        x_cols = params.get("X_cols", params.get("x_cols"))
+        if x_cols is None:
+            excluded = {sensitive_col}
+            if z_cols:
+                excluded.update(z_cols)
+            x_cols = [c for c in self.train_data.columns if c not in excluded]
+        x_cols = list(x_cols)
+        if len(x_cols) == 0:
+            raise ValueError("AIA sampling requires at least one non-sensitive feature in `X_cols`.")
+
+        real_val_df = params.get("real_val_df", params.get("real_validation_df", self.train_data))
+        attacker_families = params.get("attacker_families", ("logreg", "mlp_svd"))
+        if isinstance(attacker_families, str):
+            attacker_families = [a.strip() for a in attacker_families.split(",") if a.strip()]
+        if len(attacker_families) == 0:
+            raise ValueError("AIA sampling requires at least one attacker family.")
+
+        tau_ai = float(params.get("tau_ai", self.epsilon))
+        n_samples = int(params.get("n_samples", len(self.train_data)))
+        sensitive_n_bins = params.get("sensitive_n_bins")
+        if sensitive_n_bins is not None:
+            sensitive_n_bins = int(sensitive_n_bins)
+            if sensitive_n_bins <= 1:
+                sensitive_n_bins = None
+
+        return sampling_reject_attribute_inference(
+            model=self.model,
+            real_val_df=real_val_df,
+            tau_ai=tau_ai,
+            sensitive_col=sensitive_col,
+            X_cols=x_cols,
+            Z_cols=z_cols,
+            num_cols=list(params.get("num_cols", self.num_features)),
+            cat_cols=list(params.get("cat_cols", self.cat_features)),
+            n_samples=n_samples,
+            sensitive_n_bins=sensitive_n_bins,
+            sensitive_bin_edges=params.get("sensitive_bin_edges"),
+            sensitive_mode=str(params.get("sensitive_mode", "auto")),
+            regression_unique_threshold=int(params.get("regression_unique_threshold", 50)),
+            regression_target_transform=str(params.get("regression_target_transform", "auto")),
+            linear_regressor_kind=str(params.get("linear_regressor_kind", "sgd")),
+            attacker_families=tuple(attacker_families),
+            retrain_every=int(params.get("retrain_every", 500)),
+            max_swaps=int(params.get("max_swaps", 20000)),
+            regression_normalize=bool(params.get("regression_normalize", True)),
+            random_state=int(params.get("random_state", 0)),
+            verbose=bool(params.get("verbose", True)),
+        )
 
     def process(self, results : PipelineResults) -> pd.DataFrame:
         """Process data using epsilon-based rejection sampling."""
@@ -177,10 +254,19 @@ class SamplingAndRejectTask(GenerationTask):
             results['generation_results'] = GenerationResults(synthetic_data =  self.synth_data, generator_model = None, mode_collapse_corrected = False)
 
         self.mode_collapse_corrected = results['generation_results']['mode_collapse_corrected']
-        self.synth_data = DataLoader(dataset=self.synth_data).get_dataframe(self.cat_features)
 
         print('mode_collapse_corrected in SamplingAndRejectTask : ',results['generation_results']['mode_collapse_corrected'])
-        
+        if self._dissimilarity_type == "aia":
+            self.synth_data = self._run_aia_rejection_sampling()
+            self.generation_results = GenerationResults(
+                synthetic_data=self.synth_data,
+                generator_model=self.model,
+                mode_collapse_corrected=self.mode_collapse_corrected,
+            )
+            results['generation_results'] = self.generation_results
+            return self.synth_data
+
+        self.synth_data = DataLoader(dataset=self.synth_data).get_dataframe(self.cat_features)
 
         if self._dissimilarity_type == "only_numerical" :
             self._epsilon_identifiability = get_epsilon_numerical_only(self.train_data, self.synth_data,
@@ -262,3 +348,4 @@ class SamplingAndRejectTask(GenerationTask):
         # self.generation_results = GenerationResults(synthetic_data =  self.synth_data)
 
         results['generation_results'] = self.generation_results
+        return self.synth_data

@@ -13,3 +13,7 @@ experiments/pipeline_tabular_data_results/
 
 # VS Code workspace settings
 .vscode/
+
+.venv-compile/
+.baseline/
+.pipeline/

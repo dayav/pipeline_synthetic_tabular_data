@@ -15,6 +15,10 @@ PRIVACY_ONLY_DIR: Path = RESULTS_DIR / "privacy_evaluation_pipeline"
 PRIVACY_ONLY_DIR_WEIGHTED: Path = RESULTS_DIR / "privacy_evaluation_pipeline_weighted"
 PRIVACY_ONLY_DIR_WEIGHTED_5: Path = RESULTS_DIR / "privacy_evaluation_pipeline_weighted_5"
 UTILITY_ONLY_DIR: Path = RESULTS_DIR / "utility_evaluation_pipeline"
+AIA_GUARD: Path = RESULTS_DIR / "aia"
+
+EFFECT_SIZE_FIGURES_DIR: Path = EXTRA_DIR / "effect_size_figures"
+PVALUE_FIGURES_DIR: Path = EXTRA_DIR / "pvalue_figures"
 
 
 def results_path(*parts: str) -> Path:
@@ -39,6 +43,9 @@ __all__ = [
     "EXTRA_DIR",
     "PRIVACY_ONLY_DIR",
     "UTILITY_ONLY_DIR",
+    "AIA_GUARD",
+    "EFFECT_SIZE_FIGURES_DIR",
+    "PVALUE_FIGURES_DIR",
     "results_path",
     "ensure_dir",
 ]
