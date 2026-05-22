@@ -9,6 +9,12 @@
 - [Results & Large Artifacts](#results--large-artifacts)
 - [License & Citation](#license--citation)
 
+
+![Mode-patching stage](docs/images/iterative_freezing.png)
+
+*Stage 1 of the pipeline: iterative layer-frozen mode-patching to restore dropped categorical modes. The full pipeline also includes a HEOM–kNN privacy filter and a three-layer evaluation protocol (fidelity, utility, privacy) — see the [paper (arXiv preprint)](https://arxiv.org/abs/2602.06390) or the thesis for full details.*
+
+
 ## Project Overview
 PipelineTabularDataSynth is the experimental and evaluation artifact for the paper "Generating High-quality Privacy-preserving Synthetic Data." It provides a modular pipeline to generate synthetic tabular data (CTGAN/TVAE variants), apply model-agnostic post-processing, and evaluate fidelity, utility, and privacy across the Credit, Adult, and Cardio datasets. The core library lives in `src/`, and `PipelineBuilder` composes generation, post-processing, sampling/rejection, and evaluation tasks into repeatable workflows.
 
@@ -77,13 +83,15 @@ python -m pip install -e .
 ## Results & Large Artifacts
 All heavy experiment outputs live in the `pipeline_tabular_data_results/` Git submodule (Git LFS), pinned to a specific commit for reproducibility and hosted on Hugging Face. By default you will only have pointer files until you selectively pull the artifacts you need. See `docs/SETUP.md` for the full LFS workflow and the auto-generated task-to-results mapping.
 
+
 ## License & Citation
-No explicit license has been selected yet. See `LICENSE` for the current status.
+
+This project is released under the MIT License — see `LICENSE`.
 
 For citations, use `CITATION.cff` (includes the paper citation, repository citation guidance, and results-submodule reference).
 
 Citation guidance (research use):
 - Cite the code repository by name (`PipelineTabularDataSynth`) and include the exact code commit SHA.
 - Cite the results dataset submodule and include its commit SHA.
-- Cite the related paper: "Generating High-quality Privacy-preserving Synthetic Data" (David Yavo, Richard Khoury, Christophe Pere, Sadoune Ait Kaci Azzou).
+- Cite the related paper: "Generating High-quality Privacy-preserving Synthetic Data" (David Yavo, Richard Khoury, Christophe Pere, Sadoune Ait Kaci Azzou) - [arXiv:2602.06390](https://arxiv.org/abs/2602.06390)
 - Submodule dataset URL (for reference): https://huggingface.co/datasets/dayav/pipeline_tabular_data_results
