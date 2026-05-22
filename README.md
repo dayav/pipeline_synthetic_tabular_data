@@ -36,6 +36,7 @@ Heavy experiment artifacts are separated into the `pipeline_tabular_data_results
 **Authors:** David Yavo, Richard Khoury, Christophe Pere, Sadoune Ait Kaci Azzou
 
 This repository contains the experimental pipeline and evaluation artifacts for the paper (see the PDF provided with the review materials).
+This repository contains the experimental pipeline and evaluation artifacts for the paper, available as a preprint on [arXiv (arXiv:2602.06390)](https://arxiv.org/abs/2602.06390).
 
 ## Documentation
 - [Setup & Reproducibility](docs/SETUP.md)
@@ -53,15 +54,18 @@ This repository contains the experimental pipeline and evaluation artifacts for 
 |-- docs/                          # Setup and reproducibility guidance
 |-- src/                           # Core pipeline + evaluators
 |-- experiments/                   # Scripts and notebooks (entry points)
-|-- pipeline_tabular_data_results/ # Submodule: large artifacts (Git LFS)
+|-- scripts/                       # Smoke tests and helper scripts
 |-- tests/                         # Unit tests
+|-- pipeline_tabular_data_results/ # Submodule: large artifacts (Git LFS)
 |-- requirements.txt               # Python dependencies
 |-- setup.py                       # Package metadata
-`-- RESULTS_STORAGE.md             # Results storage format + safety notes
+|-- RESULTS_STORAGE.md             # Results storage format + safety notes
+|-- LICENSE                        # MIT License
+`-- CITATION.cff                   # Citation metadata
 ```
 
 Lightweight vs. heavy content:
-- **Lightweight code:** `docs/`, `src/`, `experiments/`, `tests/`, `requirements.txt`, `setup.py`, `RESULTS_STORAGE.md`.
+- **Lightweight code:** `docs/`, `src/`, `experiments/`, `scripts/`, `tests/`, `requirements.txt`, `setup.py`, `RESULTS_STORAGE.md`, `LICENSE`, `CITATION.cff`.
 - **Heavy artifacts:** `pipeline_tabular_data_results/` (submodule; Git LFS; do not auto-download).
 
 ## Quick Start
@@ -69,7 +73,7 @@ Lightweight vs. heavy content:
 > This quick start avoids large Git LFS downloads. For full setup, reproduction steps, and troubleshooting, see `docs/SETUP.md` and `docs/REPRODUCE_PAPER.md`.
 
 ```bash
-GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules git@github.com:dayav/pipeline_synthetic_tabular_data.git
+GIT_LFS_SKIP_SMUDGE=1 git clone --recurse-submodules https://github.com/dayav/pipeline_synthetic_tabular_data.git
 cd pipeline_synthetic_tabular_data
 GIT_LFS_SKIP_SMUDGE=1 git submodule update --init --recursive
 python3 -m venv .venv
