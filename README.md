@@ -35,7 +35,6 @@ Heavy experiment artifacts are separated into the `pipeline_tabular_data_results
 **Title:** Generating High-quality Privacy-preserving Synthetic Data  
 **Authors:** David Yavo, Richard Khoury, Christophe Pere, Sadoune Ait Kaci Azzou
 
-This repository contains the experimental pipeline and evaluation artifacts for the paper (see the PDF provided with the review materials).
 This repository contains the experimental pipeline and evaluation artifacts for the paper, available as a preprint on [arXiv (arXiv:2602.06390)](https://arxiv.org/abs/2602.06390).
 
 ## Documentation
