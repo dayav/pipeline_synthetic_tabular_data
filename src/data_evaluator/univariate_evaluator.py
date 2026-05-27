@@ -262,27 +262,31 @@ class UnivariateEvaluator(BaseEvaluator) :
     
     def jensen_shanon_divergence_categorical(self) -> List[float]:
         """
-        Computes the Jensen-Shannon (JS) divergence between the categorical distributions 
+        Computes the Jensen-Shannon (JS) distance between the categorical distributions
         of the real and synthetic datasets for each categorical column.
 
-        This function calculates the JS divergence, which is a symmetric measure of the 
-        similarity between two probability distributions. It is calculated between the 
+        Note: despite the function name, this returns the JS *distance* (the square root
+        of the JS divergence), because `scipy.spatial.distance.jensenshannon` returns the
+        distance, not the divergence.
+
+        This function calculates the JS distance, which is a symmetric measure of the
+        similarity between two probability distributions. It is calculated between the
         categorical distributions in the real and synthetic datasets for each categorical column.
 
         Returns:
-            List[float]: A list of Jensen-Shannon divergence values, one for each categorical column.
-        
+            List[float]: A list of Jensen-Shannon distance values, one for each categorical column.
+
         Notes:
-            - The function handles cases where categories in the real dataset may not exist 
-            in the synthetic dataset by reindexing and filling missing values with a small 
+            - The function handles cases where categories in the real dataset may not exist
+            in the synthetic dataset by reindexing and filling missing values with a small
             constant (1e-7).
-            - JS divergence is computed using the `jensenshannon` function from `scipy`, with 
+            - JS distance is computed using the `jensenshannon` function from `scipy`, with
             base 2 logarithms.
 
         Example:
-            For each categorical column, the function computes the real and synthetic 
-            probabilities, adjusts for missing categories, and computes the JS divergence.
-        
+            For each categorical column, the function computes the real and synthetic
+            probabilities, adjusts for missing categories, and computes the JS distance.
+
         """
         js_divergence = []
 
@@ -361,38 +365,42 @@ class UnivariateEvaluator(BaseEvaluator) :
     
     def jensen_shanon_divergence_numerical(self) -> List[float] :
         """
-        Computes the Jensen-Shannon (JS) divergence between the numerical distributions 
+        Computes the Jensen-Shannon (JS) distance between the numerical distributions
         of the real and synthetic datasets for each numerical column.
 
-        This function estimates the probability density functions (PDFs) of the numerical data 
-        in both the real and synthetic datasets using kernel density estimation (KDE). 
-        It then calculates the Jensen-Shannon divergence, which measures the similarity 
+        Note: despite the function name, this returns the JS *distance* (the square root
+        of the JS divergence), because `scipy.spatial.distance.jensenshannon` returns the
+        distance, not the divergence.
+
+        This function estimates the probability density functions (PDFs) of the numerical data
+        in both the real and synthetic datasets using kernel density estimation (KDE).
+        It then calculates the Jensen-Shannon distance, which measures the similarity
         between the two distributions for each numerical column.
 
         Returns:
-            List[float]: A list of Jensen-Shannon divergence values, one for each numerical column.
+            List[float]: A list of Jensen-Shannon distance values, one for each numerical column.
 
         Process:
-            1. For each numerical column, the function performs KDE to estimate the PDFs 
+            1. For each numerical column, the function performs KDE to estimate the PDFs
             of the real and synthetic datasets.
-            2. The PDFs are evaluated over a common range of values (`x_range`) spanning 
+            2. The PDFs are evaluated over a common range of values (`x_range`) spanning
             the minimum and maximum values from both datasets.
-            3. The Jensen-Shannon divergence is computed using the `jensenshannon` function, 
-            with base 2 logarithms. Small values in the PDFs are clipped to avoid 
+            3. The Jensen-Shannon distance is computed using the `jensenshannon` function,
+            with base 2 logarithms. Small values in the PDFs are clipped to avoid
             division by zero.
 
         Example:
-            After calling this function, it returns a list of Jensen-Shannon divergence values. 
-            A smaller value indicates more similarity between the distributions of the real and 
+            After calling this function, it returns a list of Jensen-Shannon distance values.
+            A smaller value indicates more similarity between the distributions of the real and
             synthetic data for a particular column.
 
         Notes:
             - The function uses `gaussian_kde` from `scipy` for kernel density estimation.
-            - The PDFs are evaluated over 1000 points in a range defined by the min and max values 
+            - The PDFs are evaluated over 1000 points in a range defined by the min and max values
             from both datasets.
-            - An epsilon value of `1e-10` is used to clip the PDFs to avoid computational issues 
+            - An epsilon value of `1e-10` is used to clip the PDFs to avoid computational issues
             such as division by zero.
-            - Jensen-Shannon divergence is symmetric and bounded between 0 and 1, where 0 indicates 
+            - Jensen-Shannon distance is symmetric and bounded between 0 and 1, where 0 indicates
             identical distributions.
         """
 
